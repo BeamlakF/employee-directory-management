@@ -1,0 +1,27 @@
+package com.act.intern.employee_directory.application.usecase.department;
+
+import com.act.intern.employee_directory.domain.exception.ResourceNotFoundException;
+import com.act.intern.employee_directory.domain.model.Department;
+import com.act.intern.employee_directory.domain.port.DepartmentRepositoryPort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class DeleteDepartmentUseCase {
+
+    private final DepartmentRepositoryPort departmentRepositoryPort;
+
+    public DeleteDepartmentUseCase(DepartmentRepositoryPort departmentRepositoryPort) {
+        this.departmentRepositoryPort = departmentRepositoryPort;
+    }
+
+    public void execute(Long id) {
+
+        Department department = departmentRepositoryPort.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found"));
+
+        departmentRepositoryPort.delete(department);
+    }
+}

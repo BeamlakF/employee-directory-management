@@ -1,6 +1,6 @@
-package com.act.intern.employee_directory.repository;
+package com.act.intern.employee_directory.infrastructure.persistence.repository;
 
-import com.act.intern.employee_directory.domain.Employee;
+import com.act.intern.employee_directory.domain.model.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
