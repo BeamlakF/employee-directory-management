@@ -2,13 +2,15 @@ package com.act.intern.employee_directory.infrastructure.adapter;
 
 import com.act.intern.employee_directory.domain.model.Employee;
 import com.act.intern.employee_directory.domain.port.EmployeeRepositoryPort;
+import com.act.intern.employee_directory.infrastructure.persistence.entity.EmployeeJpaEntity;
 import com.act.intern.employee_directory.infrastructure.persistence.repository.EmployeeRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Repository
+@Component
 public class EmployeeRepositoryAdapter implements EmployeeRepositoryPort {
 
     private final EmployeeRepository employeeRepository;
@@ -19,22 +21,34 @@ public class EmployeeRepositoryAdapter implements EmployeeRepositoryPort {
 
     @Override
     public Employee save(Employee employee) {
-        return employeeRepository.save(employee);
-    }
-
-    @Override
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+        EmployeeJpaEntity entity = EmployeeJpaEntity.fromDomain(employee);
+        EmployeeJpaEntity savedEntity = employeeRepository.save(entity);
+        return savedEntity.toDomain();
     }
 
     @Override
     public Optional<Employee> findById(Long id) {
-        return employeeRepository.findById(id);
+        return employeeRepository.findById(id)
+                .map(EmployeeJpaEntity::toDomain);
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        return employeeRepository.findAll().stream()
+                .map(EmployeeJpaEntity::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        employeeRepository.deleteById(id);
     }
 
     @Override
     public void delete(Employee employee) {
-        employeeRepository.delete(employee);
+        if (employee != null && employee.getId() != null) {
+            employeeRepository.deleteById(employee.getId());
+        }
     }
 
     @Override
@@ -44,6 +58,8 @@ public class EmployeeRepositoryAdapter implements EmployeeRepositoryPort {
 
     @Override
     public List<Employee> findByDepartmentId(Long departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId);
+        return employeeRepository.findByDepartmentId(departmentId).stream()
+                .map(EmployeeJpaEntity::toDomain)
+                .collect(Collectors.toList());
     }
 }
