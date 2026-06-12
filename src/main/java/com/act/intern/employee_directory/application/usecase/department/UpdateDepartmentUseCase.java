@@ -22,9 +22,15 @@ public class UpdateDepartmentUseCase {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found"));
 
-        existingDepartment.setName(updatedDepartment.getName());
-        existingDepartment.setDescription(updatedDepartment.getDescription());
+        // Create a new Department instance with updated values (immutable approach)
+        Department newDepartment = Department.builder()
+                .id(existingDepartment.getId())  // Keep the same ID
+                .name(updatedDepartment.getName() != null ?
+                        updatedDepartment.getName() : existingDepartment.getName())
+                .description(updatedDepartment.getDescription() != null ?
+                        updatedDepartment.getDescription() : existingDepartment.getDescription())
+                .build();
 
-        return departmentRepositoryPort.save(existingDepartment);
+        return departmentRepositoryPort.save(newDepartment);
     }
 }

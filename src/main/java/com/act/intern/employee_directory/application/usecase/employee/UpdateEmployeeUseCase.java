@@ -8,6 +8,8 @@ import com.act.intern.employee_directory.domain.port.EmployeeRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+
 @Service
 @Transactional
 public class UpdateEmployeeUseCase {
@@ -23,23 +25,36 @@ public class UpdateEmployeeUseCase {
         this.departmentRepositoryPort = departmentRepositoryPort;
     }
 
+    // This matches your controller call: execute(id, employee, departmentId)
     public Employee execute(Long id, Employee updatedEmployee, Long departmentId) {
 
+        // Fetch existing employee
         Employee existingEmployee = employeeRepositoryPort.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee not found"));
 
+        // Fetch department
         Department department = departmentRepositoryPort.findById(departmentId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found"));
 
-        existingEmployee.setFirstName(updatedEmployee.getFirstName());
-        existingEmployee.setLastName(updatedEmployee.getLastName());
-        existingEmployee.setEmail(updatedEmployee.getEmail());
-        existingEmployee.setSalary(updatedEmployee.getSalary());
-        existingEmployee.setHireDate(updatedEmployee.getHireDate());
-        existingEmployee.setDepartment(department);
+        // Create new Employee instance with updated values (immutable approach)
+        Employee newEmployee = Employee.builder()
+                .id(existingEmployee.getId())  // Keep the same ID
+                .firstName(updatedEmployee.getFirstName() != null ?
+                        updatedEmployee.getFirstName() : existingEmployee.getFirstName())
+                .lastName(updatedEmployee.getLastName() != null ?
+                        updatedEmployee.getLastName() : existingEmployee.getLastName())
+                .email(updatedEmployee.getEmail() != null ?
+                        updatedEmployee.getEmail() : existingEmployee.getEmail())
+                .salary(updatedEmployee.getSalary() != null ?
+                        updatedEmployee.getSalary() : existingEmployee.getSalary())
+                .hireDate(updatedEmployee.getHireDate() != null ?
+                        updatedEmployee.getHireDate() : existingEmployee.getHireDate())
+                .department(department)
+                .build();
 
-        return employeeRepositoryPort.save(existingEmployee);
+        // Save and return
+        return employeeRepositoryPort.save(newEmployee);
     }
 }

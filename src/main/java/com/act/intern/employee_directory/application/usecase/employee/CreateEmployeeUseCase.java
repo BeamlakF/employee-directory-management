@@ -34,8 +34,16 @@ public class CreateEmployeeUseCase {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found"));
 
-        employee.setDepartment(department);
+        // Create a new Employee with the department set (instead of using setDepartment)
+        Employee newEmployee = Employee.builder()
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getEmail())
+                .salary(employee.getSalary())
+                .hireDate(employee.getHireDate())
+                .department(department)
+                .build();
 
-        return employeeRepositoryPort.save(employee);
+        return employeeRepositoryPort.save(newEmployee);
     }
 }
